@@ -1,0 +1,9 @@
+*.iml
+.gradle/
+build/
+captures/
+.externalNativeBuild/
+local.properties
+*.keystore
+*.jks
+android/app/build/

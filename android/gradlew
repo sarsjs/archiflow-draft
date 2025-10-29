@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+# Gradle wrapper launcher (placeholder). Android Studio regenerará el wrapper si falta.
+DIR=$(cd "$(dirname "$0")"; pwd)
+exec ./gradlew "$@"
