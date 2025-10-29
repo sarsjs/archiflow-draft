@@ -12,8 +12,7 @@ import java.util.concurrent.TimeUnit
 
 object Network {
     // TODO: Reemplaza por tu dominio real de Vercel
-    var baseUrl = "https://TU-PROYECTO.vercel.app"
-
+    var baseUrl = "https://archiflow-draft.vercel.app"
     private val client by lazy {
         OkHttpClient.Builder()
             .connectTimeout(10, TimeUnit.SECONDS)
