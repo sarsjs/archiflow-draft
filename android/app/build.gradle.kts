@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 android {
@@ -23,13 +24,11 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            // Firma opcional vía -P... desde CI
         }
     }
+
     buildFeatures { compose = true }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.14"
-    }
+
     kotlinOptions { jvmTarget = "17" }
     packaging { resources.excludes += "/META-INF/{AL2.0,LGPL2.1}" }
 }
@@ -51,7 +50,4 @@ dependencies {
     // Networking
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("org.json:json:20240303")
-
-    // PDF simple
-    implementation("androidx.print:print:1.1.0-beta01")
 }
