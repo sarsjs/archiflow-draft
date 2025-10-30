@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,13 +35,20 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
-      - name: Build Debug APK
+      - name: Build Debug APK (verbose)
         working-directory: android
         env:
-          GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4g -Dkotlin.daemon.jvm.options=-Xmx2g"
-        run: ./gradlew --no-daemon assembleDebug
+          GRADLE_OPTS: >-
+            -Dorg.gradle.jvmargs=-Xmx4g -Dkotlin.daemon.jvm.options=-Xmx2g
+            -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=2
+            -Dorg.gradle.configuration-cache=false
+            -Dorg.gradle.internal.http.socketTimeout=120000
+            -Dorg.gradle.internal.http.connectionTimeout=120000
+        run: |
+          ./gradlew --no-daemon --stacktrace --info :app:assembleDebug
 
       - name: Upload debug APK artifact
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: ArchiFlowDraft-debug
