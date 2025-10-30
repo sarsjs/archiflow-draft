@@ -1,52 +1,59 @@
-name: Android CI
-
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    timeout-minutes: 90
+name: Integración Continua de Android
+​on:
+push:
+branches: [ main ]
+pull_request:
+workflow_dispatch:
+​jobs:
+build:
+runs-on: ubuntu-latest
+timeout-minutes: 60
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+  - name: Checkout del Repositorio
+    uses: actions/checkout@v4
 
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
+  - name: Configurar JDK 17
+    uses: actions/setup-java@v4
+    with:
+      distribution: temurin
+      java-version: 17
+      
+  # --- PASO 1: CACHÉ DE GRADLE ---
+  - name: Cache de Gradle
+    uses: actions/cache@v4
+    with:
+      path: |
+        ~/.gradle/caches
+        ~/.gradle/wrapper
+      key: ${{ runner.os }}-gradle-${{ hashFiles('android/build.gradle', 'android/settings.gradle') }}
+      restore-keys: |
+        ${{ runner.os }}-gradle-
 
-      - name: Install Android SDK (cmdline-tools)
-        uses: android-actions/setup-android@v3
+  # --- Configuración del SDK de Android ---
+  - name: Instalar SDK 34, Herramientas de Plataforma y aceptar licencias
+    uses: android-actions/setup-android@v3
+    with:
+      api-level: 34
+      build-tools: 34.0.0
 
-      - name: Install SDK 34 & accept licenses
-        run: |
-          yes | sdkmanager --licenses
-          sdkmanager "cmdline-tools;latest" "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+  - name: Dar permisos de ejecución a gradlew
+    run: chmod +x android/gradlew
 
-      - name: Make gradlew executable
-        run: chmod +x android/gradlew
+  - name: Construir APK de Depuración (modo detallado)
+    working-directory: android
+    env:
+      GRADLE_OPTS: >-
+        -Dorg.gradle.jvmargs=-Xmx4g -Dkotlin.daemon.jvm.options=-Xmx2g
+        -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=2
+        -Dorg.gradle.internal.http.socketTimeout=180000
+        -Dorg.gradle.internal.http.connectionTimeout=180000
+    run: |
+      ./gradlew --no-daemon --stacktrace --info clean :app:assembleDebug
 
-      - name: Build Debug APK (verbose)
-        working-directory: android
-        env:
-          GRADLE_OPTS: >-
-            -Dorg.gradle.jvmargs=-Xmx4g -Dkotlin.daemon.jvm.options=-Xmx2g
-            -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=2
-            -Dorg.gradle.configuration-cache=false
-            -Dorg.gradle.internal.http.socketTimeout=180000
-            -Dorg.gradle.internal.http.connectionTimeout=180000
-        run: |
-          ./gradlew --no-daemon --stacktrace --info clean :app:assembleDebug
-
-      - name: Upload debug APK artifact
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ArchiFlowDraft-debug
-          path: app/build/outputs/apk/debug/*.apk
+  - name: Subir artefacto APK de depuración
+    if: success()
+    uses: actions/upload-artifact@v4
+    with:
+      name: ArchiFlowDraft-debug
+      path: android/app/build/outputs/apk/debug/*.apk
