@@ -9,7 +9,8 @@ build:
 runs-on: ubuntu-latest
 timeout-minutes: 60
 
-    steps: # <-- Corregido: Ahora está correctamente indentado bajo 'build'
+# --- LA CORRECCIÓN CLAVE ESTÁ AQUÍ ---
+steps:
   - name: Checkout del Repositorio
     uses: actions/checkout@v4
 
