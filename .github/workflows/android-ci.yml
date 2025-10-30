@@ -9,7 +9,7 @@ build:
 runs-on: ubuntu-latest
 timeout-minutes: 60
 
-    steps:
+    steps: # <-- Corregido: Ahora está correctamente indentado bajo 'build'
   - name: Checkout del Repositorio
     uses: actions/checkout@v4
 
@@ -19,7 +19,6 @@ timeout-minutes: 60
       distribution: temurin
       java-version: 17
       
-  # --- PASO 1: CACHÉ DE GRADLE ---
   - name: Cache de Gradle
     uses: actions/cache@v4
     with:
@@ -30,7 +29,6 @@ timeout-minutes: 60
       restore-keys: |
         ${{ runner.os }}-gradle-
 
-  # --- Configuración del SDK de Android ---
   - name: Instalar SDK 34, Herramientas de Plataforma y aceptar licencias
     uses: android-actions/setup-android@v3
     with:
