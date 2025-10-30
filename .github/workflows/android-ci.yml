@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 60
 
     steps:
       - name: Checkout
@@ -24,32 +24,27 @@ jobs:
       - name: Install Android SDK (cmdline-tools)
         uses: android-actions/setup-android@v3
 
-      - name: Install SDK components & accept licenses
+      - name: Install SDK 34 & accept licenses
         run: |
           yes | sdkmanager --licenses
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
-
-      - name: Gradle cache
-        uses: gradle/actions/setup-gradle@v3
+          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
-      - name: Build Debug APK (verbose)
+      - name: Build Debug APK (verbose, no cache)
         working-directory: android
         env:
           GRADLE_OPTS: >-
             -Dorg.gradle.jvmargs=-Xmx4g -Dkotlin.daemon.jvm.options=-Xmx2g
             -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=2
             -Dorg.gradle.configuration-cache=false
-            -Dorg.gradle.internal.http.socketTimeout=120000
-            -Dorg.gradle.internal.http.connectionTimeout=120000
         run: |
-          ./gradlew --no-daemon --stacktrace --info :app:assembleDebug
+          ./gradlew --no-daemon --stacktrace --info clean :app:assembleDebug
 
       - name: Upload debug APK artifact
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: ArchiFlowDraft-debug
-          path: android/app/build/outputs/apk/debug/*.apk
+          path: app/build/outputs/apk/debug/*.apk
