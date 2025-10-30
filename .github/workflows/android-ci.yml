@@ -9,17 +9,10 @@ build:
 runs-on: ubuntu-latest
 timeout-minutes: 60
 
-# --- LA CORRECCIÓN CLAVE ESTÁ AQUÍ ---
 steps:
   - name: Checkout del Repositorio
     uses: actions/checkout@v4
 
-  - name: Configurar JDK 17
-    uses: actions/setup-java@v4
-    with:
-      distribution: temurin
-      java-version: 17
-      
   - name: Cache de Gradle
     uses: actions/cache@v4
     with:
@@ -29,6 +22,12 @@ steps:
       key: ${{ runner.os }}-gradle-${{ hashFiles('android/build.gradle', 'android/settings.gradle') }}
       restore-keys: |
         ${{ runner.os }}-gradle-
+
+  - name: Configurar JDK 17
+    uses: actions/setup-java@v4
+    with:
+      distribution: temurin
+      java-version: 17
 
   - name: Instalar SDK 34, Herramientas de Plataforma y aceptar licencias
     uses: android-actions/setup-android@v3
