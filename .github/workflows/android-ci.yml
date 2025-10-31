@@ -42,7 +42,7 @@ jobs:
             -Dorg.gradle.internal.http.socketTimeout=180000
             -Dorg.gradle.internal.http.connectionTimeout=180000
         run: |
-          ./gradlew --no-daemon --stacktrace --info clean :app:assembleDebug
+          ./gradlew --no-daemon --stacktrace --info :app:checkDebugAarMetadata --stacktrace --warning-mode all --info
 
       - name: Upload debug APK artifact
         if: success()
